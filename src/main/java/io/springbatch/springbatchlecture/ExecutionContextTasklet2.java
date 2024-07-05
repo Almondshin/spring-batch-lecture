@@ -9,20 +9,37 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class ExecutionContextTasklet2 implements Tasklet {
-
     @Override
-    public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
+    public RepeatStatus execute(StepContribution stepContribution, ChunkContext chunkContext) throws Exception {
+        // stepContribution 활용 stepExcution
+        System.out.println("step2 was executed");
 
         ExecutionContext jobExecutionContext = chunkContext.getStepContext().getStepExecution().getJobExecution().getExecutionContext();
-        ExecutionContext stepExecutionContext = chunkContext.getStepContext().getStepExecution().getExecutionContext();
+        ExecutionContext stepExecutionContext = chunkContext.getStepContext().getStepExecution().getJobExecution().getExecutionContext();
 
-        System.out.println("jobName: " + jobExecutionContext.get("jobName"));
-        System.out.println("stepName: " + stepExecutionContext.get("stepName"));
-
+        System.out.println("jobName : " + jobExecutionContext.get("jobName"));
+        System.out.println("stepName : " + stepExecutionContext.get("stepName"));
         String stepName = chunkContext.getStepContext().getStepExecution().getStepName();
-        if(stepExecutionContext.get("stepName") == null) {
+
+        if (stepExecutionContext.get("stepName")  == null){
             stepExecutionContext.put("stepName", stepName);
         }
+
         return RepeatStatus.FINISHED;
     }
+//    @Override
+//    public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
+//
+//        ExecutionContext jobExecutionContext = chunkContext.getStepContext().getStepExecution().getJobExecution().getExecutionContext();
+//        ExecutionContext stepExecutionContext = chunkContext.getStepContext().getStepExecution().getExecutionContext();
+//
+//        System.out.println("jobName: " + jobExecutionContext.get("jobName"));
+//        System.out.println("stepName: " + stepExecutionContext.get("stepName"));
+//
+//        String stepName = chunkContext.getStepContext().getStepExecution().getStepName();
+//        if(stepExecutionContext.get("stepName") == null) {
+//            stepExecutionContext.put("stepName", stepName);
+//        }
+//        return RepeatStatus.FINISHED;
+//    }
 }

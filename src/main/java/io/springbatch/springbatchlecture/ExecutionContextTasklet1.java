@@ -9,26 +9,52 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class ExecutionContextTasklet1 implements Tasklet {
-
     @Override
-    public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
+    public RepeatStatus execute(StepContribution stepContribution, ChunkContext chunkContext) throws Exception {
+        // stepContribution 활용 stepExcution
+        System.out.println("step1 was executed");
 
-        ExecutionContext jobExecutionContext = chunkContext.getStepContext().getStepExecution().getJobExecution().getExecutionContext();
-        ExecutionContext stepExecutionContext = chunkContext.getStepContext().getStepExecution().getExecutionContext();
-
+        ExecutionContext jobExecutionContext = stepContribution.getStepExecution().getJobExecution().getExecutionContext();
+        ExecutionContext stepExecutionContext = stepContribution.getStepExecution().getExecutionContext();
         String jobName = chunkContext.getStepContext().getStepExecution().getJobExecution().getJobInstance().getJobName();
         String stepName = chunkContext.getStepContext().getStepExecution().getStepName();
 
-        if(jobExecutionContext.get("jobName") == null){
+        if (jobExecutionContext.get("jobName") == null){
             jobExecutionContext.put("jobName", jobName);
         }
-        if(stepExecutionContext.get("stepName") == null) {
+
+        if (stepExecutionContext.get("stepName") == null){
             stepExecutionContext.put("stepName", stepName);
         }
 
-        System.out.println("jobName: " + jobExecutionContext.get("jobName"));
-        System.out.println("stepName: " + stepExecutionContext.get("stepName"));
+        System.out.println("jobName : " + jobExecutionContext.get("jobName"));
+        System.out.println("stepName : " + stepExecutionContext.get("stepName"));
 
         return RepeatStatus.FINISHED;
     }
+
+
+//    @Override
+//    public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
+//
+//        ExecutionContext jobExecutionContext = chunkContext.getStepContext().getStepExecution().getJobExecution().getExecutionContext();
+//        ExecutionContext stepExecutionContext = chunkContext.getStepContext().getStepExecution().getExecutionContext();
+//
+//        String jobName = chunkContext.getStepContext().getStepExecution().getJobExecution().getJobInstance().getJobName();
+//        String stepName = chunkContext.getStepContext().getStepExecution().getStepName();
+//
+//        if(jobExecutionContext.get("jobName") == null){
+//            jobExecutionContext.put("jobName", jobName);
+//        }
+//        if(stepExecutionContext.get("stepName") == null) {
+//            stepExecutionContext.put("stepName", stepName);
+//        }
+//
+//        System.out.println("jobName: " + jobExecutionContext.get("jobName"));
+//        System.out.println("stepName: " + stepExecutionContext.get("stepName"));
+//
+//        return RepeatStatus.FINISHED;
+//    }
+
+
 }
