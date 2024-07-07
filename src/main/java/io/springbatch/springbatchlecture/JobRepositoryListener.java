@@ -18,16 +18,43 @@ public class JobRepositoryListener implements JobExecutionListener {
 
     @Override
     public void afterJob(JobExecution jobExecution) {
-
         String jobName = jobExecution.getJobInstance().getJobName();
-        JobParameters jobParameters = new JobParametersBuilder().addString("requestDate", "20210102").toJobParameters();
-        JobExecution lastExecution = jobRepository.getLastJobExecution(jobName, jobParameters);
-        if(lastExecution != null) {
-            for (StepExecution execution : lastExecution.getStepExecutions()) {
+
+
+        JobParameters jobParameters = new JobParametersBuilder().addString("requestDate", "20240705").toJobParameters();
+
+        JobExecution lastJobExecution = jobRepository.getLastJobExecution(jobName, jobParameters);
+        if (lastJobExecution != null) {
+            for (StepExecution execution : lastJobExecution.getStepExecutions()) {
                 BatchStatus status = execution.getStatus();
-                System.out.println("BatchStatus = " + status.isRunning());
-                System.out.println("BatchStatus = " + status.name());
+                System.out.println("status = " + status);
+                ExitStatus exitStatus = execution.getExitStatus();
+                System.out.println("exitStatus = " + exitStatus);
+                String stepName = execution.getStepName();
+                System.out.println("stepName = " + stepName);
             }
         }
     }
+
+
+//
+//    @Override
+//    public void beforeJob(JobExecution jobExecution) {
+//
+//    }
+//
+//    @Override
+//    public void afterJob(JobExecution jobExecution) {
+//
+//        String jobName = jobExecution.getJobInstance().getJobName();
+//        JobParameters jobParameters = new JobParametersBuilder().addString("requestDate", "20210102").toJobParameters();
+//        JobExecution lastExecution = jobRepository.getLastJobExecution(jobName, jobParameters);
+//        if(lastExecution != null) {
+//            for (StepExecution execution : lastExecution.getStepExecutions()) {
+//                BatchStatus status = execution.getStatus();
+//                System.out.println("BatchStatus = " + status.isRunning());
+//                System.out.println("BatchStatus = " + status.name());
+//            }
+//        }
+//    }
 }
