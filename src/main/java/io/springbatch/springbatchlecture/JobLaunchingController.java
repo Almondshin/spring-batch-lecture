@@ -18,44 +18,49 @@ package io.springbatch.springbatchlecture;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.JobParametersBuilder;
+import org.springframework.batch.core.JobParametersInvalidException;
 import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.batch.core.launch.support.SimpleJobLauncher;
+import org.springframework.batch.core.repository.JobExecutionAlreadyRunningException;
+import org.springframework.batch.core.repository.JobInstanceAlreadyCompleteException;
+import org.springframework.batch.core.repository.JobRestartException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.batch.BasicBatchConfigurer;
 import org.springframework.core.task.SimpleAsyncTaskExecutor;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Date;
+
 
 @RestController
 public class JobLaunchingController {
 
-	@Autowired
-	private Job job;
+    @Autowired
+    private Job job;
 
-	@Autowired
-	private JobLauncher simpleLauncher;
+    @Autowired
+    private JobLauncher jobLauncher;
 
 	@Autowired
 	private BasicBatchConfigurer basicBatchConfigurer;
 
-	@PostMapping(value = "/batch")
-	public String launch(@RequestBody Member member) throws Exception {
+    @PostMapping("/batch")
+    public String launchJob(@RequestBody Member member) throws JobInstanceAlreadyCompleteException, JobExecutionAlreadyRunningException, JobParametersInvalidException, JobRestartException {
 
-		JobParameters jobParameters = new JobParametersBuilder()
-						.addString("id", member.getId())
-						.addDate("date", new Date())
-						.toJobParameters();
+        JobParameters jobParameters = new JobParametersBuilder()
+                .addString("id", member.getId())
+                .addDate("date", new Date())
+                .toJobParameters();
 
-//		SimpleJobLauncher jobLauncher = (SimpleJobLauncher)simpleLauncher;
-		SimpleJobLauncher jobLauncher = (SimpleJobLauncher)basicBatchConfigurer.getJobLauncher();
-		jobLauncher.setTaskExecutor(new SimpleAsyncTaskExecutor());
+		SimpleJobLauncher launcher = (SimpleJobLauncher) basicBatchConfigurer.getJobLauncher();
+		launcher.setTaskExecutor(new SimpleAsyncTaskExecutor());
 		jobLauncher.run(job, jobParameters);
 
 		System.out.println("Job is completed");
 
-		return "batch completed";
-	}
+        return "batch Completed";
+    }
+
 }

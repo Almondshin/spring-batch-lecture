@@ -1,6 +1,7 @@
 spring:
   profiles:
     active: local
+#선언해둔 JobLauncher로 Batch의 Job을 실행시키려면 enabled 옵션을 false로 해두어야한다.
   batch:
     job:
       enabled: false
@@ -27,9 +28,9 @@ spring:
       on-profile: mysql
   datasource:
     hikari:
-      jdbc-url: jdbc:mysql://localhost:3306/springbatch?useUnicode=true&characterEncoding=utf8
+      jdbc-url: jdbc:mysql://localhost:3306/spring_batch?useUnicode=true&characterEncoding=utf8
       username: root
-      password: pass
+      password: 1234
       driver-class-name: com.mysql.jdbc.Driver
   batch:
     jdbc:

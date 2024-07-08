@@ -13,19 +13,22 @@ import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-@RequiredArgsConstructor
 @Configuration
 public class JobLauncherConfiguration {
 
     private final JobBuilderFactory jobBuilderFactory;
     private final StepBuilderFactory stepBuilderFactory;
 
+    public JobLauncherConfiguration(JobBuilderFactory jobBuilderFactory, StepBuilderFactory stepBuilderFactory) {
+        this.jobBuilderFactory = jobBuilderFactory;
+        this.stepBuilderFactory = stepBuilderFactory;
+    }
+
     @Bean
     public Job BatchJob() {
         return this.jobBuilderFactory.get("Job")
                 .start(step1())
                 .next(step2())
-                .incrementer(new RunIdIncrementer())
                 .build();
     }
 
