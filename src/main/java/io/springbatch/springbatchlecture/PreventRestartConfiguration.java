@@ -23,7 +23,7 @@ public class PreventRestartConfiguration {
                 .start(step1())
                 .next(step2())
                 .next(step3())
-                .preventRestart()
+                .preventRestart() // 절대로 잡을 재시작하면 안되는경우 해당 API를 사용한다.
                 .build();
     }
 
