@@ -22,52 +22,60 @@ public class JobBuilderConfiguration {
     private final JobBuilderFactory jobBuilderFactory;
     private final StepBuilderFactory stepBuilderFactory;
 
-    @Bean
-    public Job batchJob1() {
-        return this.jobBuilderFactory.get("batchJob1")
-                .incrementer(new RunIdIncrementer())
-                .start(step1())
-                .next(step2())
-                .build();
-    }
+
+//    @Bean
+//    public Job batchJob1() {
+//        return this.jobBuilderFactory.get("batchJob1")
+//                .incrementer(new RunIdIncrementer())
+//                .start(step1())
+//                .next(step2())
+//                .build();
+//    }
 
     @Bean
     public Job batchJob2() {
-        return this.jobBuilderFactory.get("batchJob1")
+        return this.jobBuilderFactory.get("batchJob2")
                 .incrementer(new RunIdIncrementer())
                 .start(flow())
-                .next(step2())
+                .next(step3())
+                .next(step4())
                 .end()
                 .build();
     }
 
-    @Bean
-    public Step step1() {
-        return stepBuilderFactory.get("step1")
-                .tasklet((contribution, chunkContext) -> {
-                    System.out.println(">> step1 has executed");
-                    return RepeatStatus.FINISHED;
-                })
-                .build();
-    }
-    @Bean
-    public Step step2() {
-        return stepBuilderFactory.get("step2")
-                .tasklet((contribution, chunkContext) -> {
-                    System.out.println(">> step2 has executed");
-                    return RepeatStatus.FINISHED;
-                })
-                .build();
-    }
 
     @Bean
     public Flow flow() {
+        //Flow는 step과 동일한 기능이다. Flow안에 FlowJob 객체가 빌드된다
         FlowBuilder<Flow> flowBuilder = new FlowBuilder<>("flow");
         flowBuilder.start(step3())
                 .next(step4())
                 .end();
+
         return flowBuilder.build();
+
     }
+
+//    @Bean
+//    public Step step1() {
+//        return stepBuilderFactory.get("step1")
+//                .tasklet((contribution, chunkContext) -> {
+//                    System.out.println(">> step1 has executed");
+//                    return RepeatStatus.FINISHED;
+//                })
+//                .build();
+//    }
+//
+//    @Bean
+//    public Step step2() {
+//        return stepBuilderFactory.get("step2")
+//                .tasklet((contribution, chunkContext) -> {
+//                    System.out.println(">> step2 has executed");
+//                    return RepeatStatus.FINISHED;
+//                })
+//                .build();
+//    }
+
 
     @Bean
     public Step step3() {
@@ -81,6 +89,7 @@ public class JobBuilderConfiguration {
                 })
                 .build();
     }
+
     @Bean
     public Step step4() {
         return stepBuilderFactory.get("step4")
