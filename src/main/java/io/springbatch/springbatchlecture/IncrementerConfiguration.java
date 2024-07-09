@@ -21,8 +21,7 @@ public class IncrementerConfiguration {
     @Bean
     public Job batchJob() {
         return this.jobBuilderFactory.get("batchJob")
-//                .incrementer(new RunIdIncrementer())
-                .incrementer(new CustomJobParametersIncrementer())
+                .incrementer(new RunIdIncrementer())
                 .start(step1())
                 .next(step2())
                 .next(step3())
