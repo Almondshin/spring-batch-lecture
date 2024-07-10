@@ -32,7 +32,7 @@ public class StepBuilderConfiguration {
                 .next(step2())
                 .next(step4())
                 .next(step5())
-//                .next(step3())
+                .next(step3())
                 .build();
     }
 
@@ -53,14 +53,13 @@ public class StepBuilderConfiguration {
                 .writer(list -> {})
                 .build();
     }
-   /* @Bean
+    @Bean
     public Step step3() {
         return stepBuilderFactory.get("step3")
                 .partitioner(step1())
                 .gridSize(2)
                 .build();
     }
-*/
     @Bean
     public Step step4() {
         return stepBuilderFactory.get("step4")
@@ -79,7 +78,7 @@ public class StepBuilderConfiguration {
         return this.jobBuilderFactory.get("job")
                 .start(step1())
                 .next(step2())
-//                .next(step3())
+                .next(step3())
                 .build();
     }
     @Bean
