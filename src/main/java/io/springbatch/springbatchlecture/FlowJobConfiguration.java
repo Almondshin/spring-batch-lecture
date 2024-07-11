@@ -35,9 +35,9 @@ public class FlowJobConfiguration {
     public Job batchJob() {
         return jobBuilderFactory.get("batchJob")
                 .start(step1())
-                .on("COMPLETED").to(step2())
+                .on("COMPLETED").to(step3())
                 .from(step1())
-                .on("FAILED").to(step3())
+                .on("FAILED").to(step2())
                 .end()
                 .build();
     }
