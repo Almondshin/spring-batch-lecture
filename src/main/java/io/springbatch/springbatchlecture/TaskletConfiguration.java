@@ -39,21 +39,41 @@ public class TaskletConfiguration {
     }
 
     @Bean
-    public Step step1() {
+    public Step step1(){
         return stepBuilderFactory.get("step1")
                 .tasklet(new Tasklet() {
                     @Override
                     public RepeatStatus execute(StepContribution stepContribution, ChunkContext chunkContext) throws Exception {
-                        System.out.println("stepContribution = " + stepContribution + ", chunkContext = " + chunkContext);
+                        System.out.println("stepContribution : " + stepContribution + ", chunkContext : " + chunkContext);
                         return RepeatStatus.FINISHED;
                     }
                 })
                 .build();
     }
-    @Bean
-    public Step step2() {
+
+
+    public  Step step2(){
         return stepBuilderFactory.get("step2")
                 .tasklet(customTasklet)
                 .build();
     }
+
+//    @Bean
+//    public Step step1() {
+//        return stepBuilderFactory.get("step1")
+//                .tasklet(new Tasklet() {
+//                    @Override
+//                    public RepeatStatus execute(StepContribution stepContribution, ChunkContext chunkContext) throws Exception {
+//                        System.out.println("stepContribution = " + stepContribution + ", chunkContext = " + chunkContext);
+//                        return RepeatStatus.FINISHED;
+//                    }
+//                })
+//                .build();
+//    }
+//    @Bean
+//    public Step step2() {
+//        return stepBuilderFactory.get("step2")
+//                .tasklet(customTasklet)
+//                .build();
+//    }
 }
