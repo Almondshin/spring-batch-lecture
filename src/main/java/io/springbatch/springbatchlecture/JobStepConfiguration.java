@@ -8,6 +8,7 @@ import org.springframework.batch.core.job.DefaultJobParametersValidator;
 import org.springframework.batch.core.job.builder.FlowBuilder;
 import org.springframework.batch.core.job.flow.Flow;
 import org.springframework.batch.core.launch.JobLauncher;
+import org.springframework.batch.core.launch.support.RunIdIncrementer;
 import org.springframework.batch.core.partition.support.Partitioner;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.core.step.job.DefaultJobParametersExtractor;
@@ -32,15 +33,17 @@ public class JobStepConfiguration {
     @Bean
     public Job parentJob() {
         return this.jobBuilderFactory.get("parentJob")
+                .incrementer(new RunIdIncrementer())
                 .start(jobStep(null))
                 .next(step2())
                 .build();
     }
     @Bean
     public Step jobStep(JobLauncher jobLauncher) {
-        return this.stepBuilderFactory.get("jobStep")
+        return stepBuilderFactory.get("jobStep")
                 .job(childJob())
                 .launcher(jobLauncher)
+                .parametersExtractor(jobParametersExtractor())
                 .listener(new StepExecutionListener() {
                     @Override
                     public void beforeStep(StepExecution stepExecution) {
@@ -52,7 +55,6 @@ public class JobStepConfiguration {
                         return null;
                     }
                 })
-                .parametersExtractor(jobParametersExtractor())
                 .build();
     }
     @Bean
