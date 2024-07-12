@@ -8,6 +8,7 @@ import org.springframework.batch.core.job.builder.FlowBuilder;
 import org.springframework.batch.core.job.flow.Flow;
 import org.springframework.batch.core.job.flow.FlowExecutionStatus;
 import org.springframework.batch.core.job.flow.JobExecutionDecider;
+import org.springframework.batch.core.launch.support.RunIdIncrementer;
 import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -22,8 +23,10 @@ public class SimpleFlowConfiguration {
     @Bean
     public Job job() {
         return jobBuilderFactory.get("batchJob")
-                .start(flow())
-                .next(step3())
+                .incrementer(new RunIdIncrementer())
+                .start(step1())
+                .on("FAILED")
+                .to(step2())
                 .end()
                 .build();
     }
@@ -31,11 +34,9 @@ public class SimpleFlowConfiguration {
     @Bean
     public Flow flow() {
         FlowBuilder<Flow> flowBuilder = new FlowBuilder<>("flow");
-
         flowBuilder.start(step1())
                 .next(step2())
                 .end();
-
         return flowBuilder.build();
     }
 
@@ -44,12 +45,14 @@ public class SimpleFlowConfiguration {
         return stepBuilderFactory.get("step1")
                 .tasklet((contribution, chunkContext) -> {
                     System.out.println(">> step1 has executed");
+                    contribution.setExitStatus(ExitStatus.FAILED);
                     return RepeatStatus.FINISHED;
                 }).build();
     }
 
     @Bean
     public Step step2() {
+
         return stepBuilderFactory.get("step2")
                 .tasklet((contribution, chunkContext) -> {
                     System.out.println(">> step2 has executed");
