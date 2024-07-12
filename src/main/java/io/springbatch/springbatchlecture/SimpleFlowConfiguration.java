@@ -22,15 +22,22 @@ public class SimpleFlowConfiguration {
     @Bean
     public Job job() {
         return jobBuilderFactory.get("batchJob")
-                .start(flow1())
-                    .on("COMPLETED")
-                    .to(flow2())
-                .from(flow1())
+                .start(step1())
                     .on("FAILED")
-                    .to(flow3())
+                    .to(step2())
+                    .on("FAILED")
+                    .stop()
+                .from(step1())
+                    .on("*")
+                    .to(step3())
+                    .next(step4())
+                .from(step2())
+                    .on("*")
+                    .to(step5())
                 .end()
                 .build();
     }
+
     @Bean
     public Flow flow1() {
         FlowBuilder<Flow> flowBuilder = new FlowBuilder<>("flow1");
@@ -64,11 +71,13 @@ public class SimpleFlowConfiguration {
 
         return flowBuilder.build();
     }
+
     @Bean
     public Step step1() {
         return stepBuilderFactory.get("step1")
                 .tasklet((contribution, chunkContext) -> {
                     System.out.println(">> step1 has executed");
+                    contribution.setExitStatus(ExitStatus.FAILED);
 //                    throw new RuntimeException("step1 was failed");
                     return RepeatStatus.FINISHED;
                 }).build();
