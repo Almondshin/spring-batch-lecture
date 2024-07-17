@@ -23,9 +23,11 @@ public class SimpleFlowConfiguration {
     public Job job() {
         return jobBuilderFactory.get("batchJob")
                 .start(step1())
-                .on("COMPLETED").to(step2())
+                    .on("COMPLETED")
+                    .to(step2())
                 .from(step1())
-                .on("FAILED").to(flow())
+                    .on("FAILED")
+                    .to(flow())
                 .end()
                 .build();
     }
