@@ -34,12 +34,21 @@ public class FlowJobConfiguration {
     @Bean
     public Job batchJob() {
         return jobBuilderFactory.get("batchJob")
-                .start(step1())
-                .on("COMPLETED").to(step3())
-                .from(step1())
-                .on("FAILED").to(step2())
+                .start(flow())
+                .next(step3())
                 .end()
                 .build();
+    }
+
+
+    @Bean
+    public Flow flow(){
+        FlowBuilder<Flow> builder = new FlowBuilder<>("flow");
+        builder.start(step1())
+                .next(step2())
+                .end();
+
+        return builder.build();
     }
 
     @Bean
