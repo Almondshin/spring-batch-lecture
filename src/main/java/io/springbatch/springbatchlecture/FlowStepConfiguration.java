@@ -27,8 +27,9 @@ public class FlowStepConfiguration {
     @Bean
     public Job job() {
         return jobBuilderFactory.get("batchJob")
-                .start(flowStep())
-                .next(step2())
+                .start(flow())
+                .next(step3())
+                .end()
                 .build();
     }
 
@@ -42,6 +43,7 @@ public class FlowStepConfiguration {
     public Flow flow() {
         FlowBuilder<Flow> flowBuilder = new FlowBuilder<>("flow");
         flowBuilder.start(step1())
+                .next(step2())
                 .end();
         return flowBuilder.build();
     }
@@ -67,6 +69,19 @@ public class FlowStepConfiguration {
                     @Override
                     public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
                         System.out.println("step2 was executed");
+                        return RepeatStatus.FINISHED;
+                    }
+                })
+                .build();
+    }
+
+    @Bean
+    public Step step3() {
+        return stepBuilderFactory.get("step3")
+                .tasklet(new Tasklet() {
+                    @Override
+                    public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
+                        System.out.println("step3 was executed");
                         return RepeatStatus.FINISHED;
                     }
                 })
