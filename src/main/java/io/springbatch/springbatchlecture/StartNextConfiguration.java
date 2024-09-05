@@ -5,24 +5,15 @@ import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.StepContribution;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
+import org.springframework.batch.core.configuration.annotation.JobScope;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
-import org.springframework.batch.core.job.DefaultJobParametersValidator;
-import org.springframework.batch.core.job.builder.FlowBuilder;
-import org.springframework.batch.core.job.flow.Flow;
-import org.springframework.batch.core.launch.JobLauncher;
-import org.springframework.batch.core.partition.support.Partitioner;
+import org.springframework.batch.core.launch.support.RunIdIncrementer;
 import org.springframework.batch.core.scope.context.ChunkContext;
-import org.springframework.batch.core.step.job.DefaultJobParametersExtractor;
 import org.springframework.batch.core.step.tasklet.Tasklet;
-import org.springframework.batch.item.*;
-import org.springframework.batch.item.support.ListItemReader;
 import org.springframework.batch.repeat.RepeatStatus;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
-import java.util.Arrays;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Configuration
@@ -34,44 +25,18 @@ public class StartNextConfiguration {
     @Bean
     public Job batchJob() {
         return jobBuilderFactory.get("batchJob")
-                .start(flowA())
-                .next(step3())
-                .next(flowB())
-                .next(step6())
-                .end()
+                .incrementer(new RunIdIncrementer())
+                .start(reChunkSizeStep1())
+                .next(step2())
                 .build();
     }
-
     @Bean
-    public Flow flowA() {
-        FlowBuilder<Flow> flowBuilder = new FlowBuilder<>("flowA");
-        flowBuilder.start(step1())
+    public Job batchJob2() {
+        return jobBuilderFactory.get("batchJob")
+                .incrementer(new RunIdIncrementer())
+                .start(reChunkSizeStep1())
                 .next(step2())
-                .end();
-
-        return flowBuilder.build();
-    }
-
-    @Bean
-    public Flow flowB() {
-        FlowBuilder<Flow> flowBuilder = new FlowBuilder<>("flowB");
-        flowBuilder.start(step4())
-                .next(step5())
-                .end();
-
-        return flowBuilder.build();
-    }
-
-    @Bean
-    public Step step1() {
-        return stepBuilderFactory.get("step1")
-                .tasklet(new Tasklet() {
-                    @Override
-                    public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
-                        System.out.println(">> step1 has executed");
-                        return RepeatStatus.FINISHED;
-                    }
-                }).build();
+                .build();
     }
 
     @Bean
@@ -79,57 +44,45 @@ public class StartNextConfiguration {
         return stepBuilderFactory.get("step2")
                 .tasklet((contribution, chunkContext) -> {
                     System.out.println(">> step2 has executed");
+                    System.out.println("contribution.getStepExecution(): " + contribution.getStepExecution());
                     return RepeatStatus.FINISHED;
-                }).build();
+                })
+                .allowStartIfComplete(true)
+                .build();
     }
 
+    @Value("${batch.job.chunkSize}")
+    private int chunkSize;
+
     @Bean
-    public Step step3() {
-        return stepBuilderFactory.get("step3")
+    @JobScope
+    public Step reChunkSizeStep1(){
+        return stepBuilderFactory.get("reChunkSizeStep1")
+                .tasklet((stepContribution, chunkContext) -> {
+                    System.out.println(">> reChunkSizeStep1 has executed");
+                    int chunkSizeValue = chunkSize;
+                    System.out.println("Chunk Size: " + chunkSizeValue);
+                    return RepeatStatus.FINISHED;
+                })
+                .allowStartIfComplete(true)
+                .build();
+    }
+
+
+    @Bean
+    @JobScope
+    public Step reChunkSizeStep2(@Value("#{jobParameters[chunkSize]}") String chunkSize){
+        return stepBuilderFactory.get("reChunkSizeStep2")
                 .tasklet(new Tasklet() {
                     @Override
-                    public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
-                        System.out.println(">> step3 has executed");
+                    public RepeatStatus execute(StepContribution stepContribution, ChunkContext chunkContext) throws Exception {
+                        int chunkSizeValue = Integer.parseInt(chunkSize);
+                        // chunkSizeValue를 사용하여 필요한 작업 수행
+                        System.out.println("Chunk Size: " + chunkSizeValue);
                         return RepeatStatus.FINISHED;
                     }
-                }).build();
-    }
-
-    @Bean
-    public Step step4() {
-        return stepBuilderFactory.get("step4")
-                .tasklet(new Tasklet() {
-                    @Override
-                    public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
-                        System.out.println(">> step4 has executed");
-//                        return RepeatStatus.FINISHED;
-                        throw new RuntimeException();
-                    }
-                }).build();
-    }
-
-    @Bean
-    public Step step5() {
-        return stepBuilderFactory.get("step5")
-                .tasklet(new Tasklet() {
-                    @Override
-                    public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
-                        System.out.println(">> step5 has executed");
-                        return RepeatStatus.FINISHED;
-                    }
-                }).build();
-    }
-
-    @Bean
-    public Step step6() {
-        return stepBuilderFactory.get("step6")
-                .tasklet(new Tasklet() {
-                    @Override
-                    public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
-                        System.out.println(">> step6 has executed");
-                        return RepeatStatus.FINISHED;
-                    }
-                }).build();
+                })
+                .build();
     }
 
 }

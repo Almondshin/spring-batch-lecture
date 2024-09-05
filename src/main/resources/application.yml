@@ -1,10 +1,22 @@
 spring:
+  application:
+    name: MOKBatchModule
+
   profiles:
     active: local
   batch:
+    jdbc:
+      table-prefix: MOK_
     job:
-#      enabled: false
       names: ${job.name:NONE}
+
+
+
+
+
+batch:
+  job:
+    chunkSize: 20
 
 ---
 spring:
