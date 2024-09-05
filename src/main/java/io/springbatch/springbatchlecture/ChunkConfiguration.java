@@ -43,24 +43,26 @@ public class ChunkConfiguration {
     @Bean
     public Step step1() {
         return stepBuilderFactory.get("step1")
-                .<String, String>chunk(2)
-                .reader(new ListItemReader<>(Arrays.asList("item1", "item2", "item3","item4", "item5", "item6")))
+                .<String, String>chunk(5)
+                .reader(new ListItemReader<>(Arrays.asList("item1","item2", "item3", "item4", "item5")))
                 .processor(new ItemProcessor<String, String>() {
+
                     @Override
-                    public String process(String item) throws Exception {
+                    public String process(String items) throws Exception {
                         Thread.sleep(300);
-                        System.out.println(item);
-                        return "my_" + item;
+                        System.out.println("items = " + items);
+                        return "mySpringBatch" + items;
                     }
                 })
                 .writer(new ItemWriter<String>() {
                     @Override
-                    public void write(List<? extends String> items) throws Exception {
-                        Thread.sleep(1000);
-                        System.out.println(items);
+                    public void write(List<? extends String> list) throws Exception {
+                        Thread.sleep(300);
+                        System.out.println("list = " + list);
                     }
                 })
                 .build();
+
     }
 
     @Bean
